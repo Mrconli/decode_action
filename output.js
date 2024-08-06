@@ -1,78 +1,232 @@
-//Tue Aug 06 2024 03:46:30 GMT+0000 (Coordinated Universal Time)
+//Tue Aug 06 2024 07:04:56 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
 const {
-    validateCarmeWithType: _0x30a8a3,
-    commonRequest: _0x46161b,
-    getCookies: _0x210594,
-    getUserInfoWithX: _0x152c2f,
-    wait: _0x1a2f0c,
-    getCoordinates
-  } = require("./common.js"),
-  _0x20a517 = process.env.ELE_CARME,
-  _0x2bec0b = 3;
-function _0x40ab69(_0x403f82) {
-  return Object.values(_0x403f82).length === 0;
-}
-async function _0x154fb2(_0x4e0ae7, _0x1a1aac, _0x1037cb, _0xfadcbd) {
-  const _0x5a2323 = {
-    bizScene: "XIAODANGJIA",
-    actId: "20230117134129770153614517",
-    uniqueId: "",
-    latitude: _0x1037cb,
-    longitude: _0xfadcbd,
-    cityId: "2",
-    bizCode: "XIAODANGJIA",
-    collectionId: "20230421102945045949799658",
-    componentId: "20230505143809276394718532",
-    extParams: "{\\\"actId\\\":\\\"20230117134129770153614517\\\",\\\"bizScene\\\":\\\"XIAODANGJIA\\\",\\\"desc\\\":\\\"玩特级厨师挑战赛\\\"}",
-    asac: "2A22C0239QW1FOL3UUQY7U"
+  sign,
+  getToken,
+  wait,
+  checkCk,
+  User_Agent,
+  validateCarmeNoCon,
+  getCookies,
+  getUserInfo,
+  tryCatchPromise,
+  validateCarmeWithType,
+  checkMasterCk
+} = require("./common.js");
+const request = require("request");
+let CookieEles = [];
+const kami = process.env.ELE_TTCJ_CARME;
+const carmiType = 4;
+async function commonRequest(_0x4ba190, _0x598af3, _0x8d067c) {
+  const _0x4aad8d = {
+    "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
+    Cookie: _0x4ba190,
+    "User-Agent": User_Agent
   };
-  let _0x3b644c = "mtop.koubei.interactioncenter.platform.right.lottery";
-  try {
-    const _0x4ec97d = await _0x46161b(_0x4e0ae7, JSON.stringify(_0x5a2323), _0x3b644c, _0x2bec0b, "mtop.ele.me", process.env.x5sec);
-    if (_0x40ab69(_0x4ec97d.data.data)) {
-      console.log(_0x4ec97d.ret[0]);
-      return false;
-    } else {
-      const _0x4b8af4 = _0x4ec97d.data.data.sendRightList[0].discountInfo.amount;
-      console.log("特级厨师闯关成功。获得：" + _0x4b8af4, "乐园币");
-      _0x4b8af4 && _0x4b8af4 !== 1 && (await _0x154fb2(_0x4e0ae7, _0x1a1aac, _0x1037cb, _0xfadcbd));
-      await _0x1a2f0c(1);
-      return _0x4b8af4 !== 1;
-    }
-  } catch (_0x3efe31) {
-    return false;
+  const _0x127763 = new Date().getTime();
+  const _0x4a89ec = 12574478;
+  var _0x10ffa4 = "data=" + encodeURIComponent(JSON.stringify(_0x8d067c));
+  const _0x63f7bd = getToken(_0x4ba190),
+    _0x2dc256 = _0x63f7bd.split("_")[0];
+  const _0xa202fb = await sign(_0x2dc256 + "&" + _0x127763 + "&" + _0x4a89ec + "&" + JSON.stringify(_0x8d067c), kami, carmiType);
+  const _0x161c42 = {
+    url: "https://shopping.ele.me/h5/mtop.alsc.growth.tangram.gateway/1.0/?jsv=2.6.1&appKey=12574478&asac=" + _0x598af3 + "&ttid=1601274958480%40eleme_android_10.14.3&t=" + _0x127763 + "&sign=" + _0xa202fb + "&api=mtop.alsc.growth.tangram.gateway",
+    method: "POST",
+    headers: _0x4aad8d,
+    body: _0x10ffa4
+  };
+  return tryCatchPromise(_0x133cd5 => {
+    request(_0x161c42, async (_0x2ecdc3, _0x3348b9, _0x2ac86a) => {
+      if (!_0x2ecdc3 && _0x3348b9.statusCode == 200) {
+        try {
+          const _0x4ba7ad = JSON.parse(_0x2ac86a);
+          _0x133cd5(_0x4ba7ad);
+        } catch (_0x5495c9) {
+          console.log(_0x5495c9);
+          _0x133cd5(null);
+        }
+      } else {
+        _0x133cd5(null);
+      }
+    });
+  });
+}
+function processUrl(_0x1ab811) {
+  const _0x19f999 = new Map();
+  const _0x250f80 = _0x1ab811.split("?")[1].split("&");
+  for (let _0xd4095a = 0; _0xd4095a < _0x250f80.length; _0xd4095a++) {
+    const [_0x10378d, _0x57d503] = _0x250f80[_0xd4095a].split("=");
+    _0x19f999.set(_0x10378d, _0x57d503);
+  }
+  return _0x19f999;
+}
+async function getAssistList(_0x1d00b8) {
+  _0x1d00b8 = await checkMasterCk(_0x1d00b8);
+  const _0x33a178 = {
+    "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
+    Cookie: _0x1d00b8,
+    "User-Agent": User_Agent
+  };
+  const _0x1b1b99 = new Date().getTime();
+  const _0xb1c3b = 12574478;
+  const _0x12f03f = {
+    bizScene: "growth_fission_coupon",
+    instance: "INNER",
+    pageNo: "1",
+    pageSize: "10",
+    type: "0",
+    version: "1.7"
+  };
+  var _0x32a69c = "data=" + encodeURIComponent(JSON.stringify(_0x12f03f));
+  const _0x2659aa = getToken(_0x1d00b8),
+    _0x2262e2 = _0x2659aa.split("_")[0];
+  const _0x342993 = await sign(_0x2262e2 + "&" + _0x1b1b99 + "&" + _0xb1c3b + "&" + JSON.stringify(_0x12f03f), kami, carmiType);
+  const _0x7ba63f = {
+    url: "https://shopping.ele.me/h5/mtop.ele.growth.fission.shopcoupon.assistlist/1.0/?jsv=2.6.1&appKey=12574478&&ttid=1601274958480%40eleme_android_10.14.3&t=" + _0x1b1b99 + "&sign=" + _0x342993 + "&api=mtop.ele.growth.fission.shopcoupon.assistlist",
+    method: "POST",
+    headers: _0x33a178,
+    body: _0x32a69c
+  };
+  return new Promise(_0x122e3f => {
+    request(_0x7ba63f, async (_0x225197, _0x756714, _0x1ca8b2) => {
+      if (!_0x225197 && _0x756714.statusCode == 200) {
+        try {
+          const _0x311322 = JSON.parse(_0x1ca8b2);
+          _0x122e3f(_0x311322);
+        } catch (_0x136048) {
+          console.log(_0x136048);
+          _0x122e3f(null);
+        }
+      } else {
+        _0x122e3f(null);
+      }
+    });
+  });
+}
+async function getShareId(_0x2c25a5) {
+  _0x2c25a5 = await checkMasterCk(_0x2c25a5, kami, carmiType);
+  if (!_0x2c25a5) {
+    console.log("需要助力的账号失效！请重新登录！！！");
+    process.exit(0);
+  }
+  var _0x51ba2d;
+  const _0x212ae0 = {
+    api: "fissionDrawShare",
+    asac: "2A22C21KPW8PSOH8QMD4LM",
+    bizScene: "growth_fission_coupon",
+    instance: "INNER",
+    params: "{\"latitude\":\"30.178514\",\"longitude\":\"120.220959\",\"cityId\":\"\"}",
+    scene: "fissionDraw001"
+  };
+  const _0x176d90 = await commonRequest(_0x2c25a5, "2A22C21KPW8PSOH8QMD4LM", _0x212ae0);
+  if (_0x176d90.data && _0x176d90.data.result) {
+    const _0x4f8f03 = _0x176d90.data.result;
+    _0x51ba2d = processUrl(_0x4f8f03.url).get("shareId");
+    console.log("获取到的助力 id 为", _0x51ba2d);
+    return _0x51ba2d;
+  } else {
+    console.log("获取到助力 id 失败，程序退出");
+    process.exit(0);
   }
 }
-async function _0x3ca360() {
-  await _0x30a8a3(_0x20a517, 1);
-  const _0x26db4f = _0x210594("elmck"),
-    {
-      latitude: _0x386378,
-      longitude: _0x43eb6b
-    } = await getCoordinates();
-  for (let _0xdbcbdb = 0; _0xdbcbdb < _0x26db4f.length; _0xdbcbdb++) {
-    let _0x275692 = _0x26db4f[_0xdbcbdb],
-      _0x11e529 = await _0x152c2f(_0x275692, _0x2bec0b);
-    if (_0x11e529 && _0x11e529[0]) {
-      console.log("第", _0xdbcbdb + 1, "账号失效！请重新登录！！！😭");
+async function fridensHelper(_0x2eb461, _0x3c3270, _0x53997a) {
+  try {
+    _0x3c3270 = await checkMasterCk(_0x3c3270, kami, carmiType);
+    const _0x2245eb = {
+      api: "support",
+      bizScene: "growth_fission_coupon",
+      instance: "INNER",
+      params: "{\"latitude\":\"\",\"longitude\":\"\",\"cityId\":\"\",\"shareId\":\"" + _0x53997a + "\"}",
+      scene: "fissionDraw001"
+    };
+    let _0x22b604 = await validateCarmeNoCon(kami, true);
+    const _0x24cfd2 = await commonRequest(_0x2eb461, "2A22C21RPW8PSOJ9OFOQGY", _0x2245eb);
+    if (_0x24cfd2.data && _0x24cfd2.data.result) {
+      const _0x42bcbf = _0x24cfd2.data.result;
+      console.log(_0x42bcbf.title + "：" + _0x42bcbf.subTitle);
+      if (_0x42bcbf.title.indexOf("无法助力") !== -1) {
+        await validateCarmeNoCon(kami, false);
+        console.log("防止黑号延时1-3秒");
+        await wait(getRandom(1, 3));
+      } else {
+        if (_0x42bcbf.title.indexOf("谢谢你为我助力") !== -1) {
+          console.log("请求次数剩余", _0x22b604);
+          const _0x1147f3 = {
+            api: "drawAction",
+            asac: "2A22C21FPW8PSO7U202V54",
+            bizScene: "growth_fission_coupon",
+            instance: "INNER",
+            params: "{\"latitude\":\"\",\"longitude\":\"\",\"cityId\":\"\"}",
+            scene: "fissionDraw001"
+          };
+          const _0x2bf83e = await commonRequest(_0x3c3270, "2A22C21FPW8PSO7U202V54", _0x1147f3);
+          if (_0x2bf83e.data && _0x2bf83e.data.result) {
+            const _0x834bcc = _0x2bf83e.data.result;
+            const _0x535794 = _0x834bcc.popWindow.content[0].amount;
+            console.log(_0x834bcc.popWindow.title + "：" + _0x535794);
+            if (_0x2bf83e.data.success) {
+              const _0x5e83e6 = {
+                api: "withdrawAction",
+                bizScene: "growth_fission_coupon",
+                instance: "INNER",
+                params: "{\"latitude\":\"\",\"longitude\":\"\",\"cityId\":\"\",\"amount\":\"" + _0x535794 + "\"}",
+                scene: "fissionDraw001"
+              };
+              const _0x5c1663 = await commonRequest(_0x3c3270, "", _0x5e83e6);
+              if (_0x5c1663.data && _0x5c1663.data.result) {
+                const _0x560444 = _0x5c1663.data.result;
+                console.log(_0x560444.popWindow.title + "：金额", _0x560444.popWindow.content[0].amount);
+                console.log(_0x560444.popWindow.content[0].step2);
+              } else {
+                console.log("提现：" + _0x2bf83e.ret[0]);
+              }
+            } else {
+              console.log("抽奖：" + _0x2bf83e.ret[0]);
+            }
+          } else {
+            console.log("抽奖：" + _0x2bf83e.ret[0]);
+          }
+          console.log("防止黑号延时5-10秒");
+          await wait(getRandom(5, 10));
+        }
+      }
+    } else {
+      console.log("助力：" + drawRes.ret[0]);
+    }
+  } catch (_0x4fb59a) {}
+}
+(async function () {
+  if (!kami) {
+    console.log("❌卡密不能为空");
+    process.exit(0);
+  }
+  const _0x31328d = process.env.ownCookie;
+  if (!_0x31328d) {
+    console.log("未设置需助力的 ck，程序结束!");
+    process.exit(0);
+  }
+  await validateCarmeWithType(kami, carmiType);
+  CookieEles = getCookies();
+  const _0x594834 = await getShareId(_0x31328d);
+  for (let _0x2a4e2a = 0; _0x2a4e2a < CookieEles.length; _0x2a4e2a++) {
+    let _0x4169a5 = CookieEles[_0x2a4e2a];
+    _0x4169a5 = await checkCk(_0x4169a5, _0x2a4e2a, kami, carmiType);
+    if (!_0x4169a5) {
       continue;
     }
-    if (!_0x11e529 || !_0x11e529.userName) {
+    let _0x411b83 = await getUserInfo(_0x4169a5);
+    if (!_0x411b83.username) {
+      console.log("第", _0x2a4e2a + 1, "账号失效！请重新登录！！！😭");
       continue;
     }
-    const _0x49c1ba = _0x11e529.localId;
-    let _0x54bf25 = _0x11e529.encryptMobile;
-    console.log("\n****** #" + (_0xdbcbdb + 1), _0x54bf25, "*********");
-    console.log("账号的 id 为", _0x49c1ba);
-    await _0x154fb2(_0x275692, "", _0x386378, _0x43eb6b);
-    console.log("防止挤爆了，延时 1 秒");
-    await _0x1a2f0c(1);
+    await fridensHelper(_0x4169a5, _0x31328d, _0x594834);
   }
   process.exit(0);
+})();
+function getRandom(_0x416af4, _0x4e24ec) {
+  return Math.floor(Math.random() * (_0x4e24ec - _0x416af4 + 1) + _0x416af4);
 }
-_0x3ca360();
 function Env(t, e) {
   "undefined" != typeof process && JSON.stringify(process.env).indexOf("GITHUB") > -1 && process.exit(0);
   class s {
