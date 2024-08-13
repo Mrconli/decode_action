@@ -1,148 +1,117 @@
-//Tue Aug 13 2024 10:35:39 GMT+0000 (Coordinated Universal Time)
+//Tue Aug 13 2024 10:38:25 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
 const {
-  getEnvsByName,
-  DisableCk,
-  EnableCk,
-  updateEnv,
-  updateEnv11,
-  getEnvByUserId
-} = require("./ql");
-const {
-  wait,
-  checkCk,
-  validateCarmeWithType,
-  invalidCookieNotify,
-  getUserInfo,
-  runOne,
-  getCookieMap
-} = require("./common.js");
-const _0x11f78e = require("moment");
-function _0x543ec4(_0x3fdeea, _0x4dabab) {
-  return Math.floor(Math.random() * (_0x4dabab - _0x3fdeea + 1) + _0x3fdeea);
-}
-function _0x389941(_0x1daaab) {
-  let _0x59299c = "";
-  for (let [_0x7cf76, _0x5050e8] of _0x1daaab) {
-    _0x59299c += encodeURIComponent(_0x7cf76) + "=" + encodeURIComponent(_0x5050e8) + ";";
-  }
-  return _0x59299c;
-}
-async function _0x179175(_0x2afd75, _0x2c035c, _0x3898fc) {
-  let _0x1723ee = await runOne(_0x2c035c, _0x3898fc);
-  if (_0x1723ee && _0x1723ee.data) {
-    let _0x56dfb3 = _0x1723ee.data;
-    if (_0x56dfb3.code === 3000) {
-      let _0x152e9a = JSON.parse(_0x56dfb3.returnValue.data);
-      const _0x120021 = _0x152e9a.expires;
-      const _0x3e21d8 = _0x11f78e(_0x120021 * 1000).format("YYYY-MM-DD HH:mm:ss");
-      let _0xcf2e0a = getCookieMap(_0x2c035c);
-      let _0x1e14a1 = JSON.parse(_0x56dfb3.returnValue.extMap.eleExt);
-      for (let _0x325327 = 0; _0x325327 < _0x1e14a1.length; _0x325327++) {
-        let _0x296965 = _0x1e14a1[_0x325327];
-        if (_0x296965.name === "SID") {
-          _0xcf2e0a.SID = _0x296965.value;
-          break;
-        }
-      }
-      let _0x5a92f2 = await runOne(_0x2c035c, _0xcf2e0a.get("SID"));
-      if (!_0x5a92f2) {
-        return;
-      }
-      _0xcf2e0a.cookie2 = _0x56dfb3.returnValue.sid;
-      let _0xf79b29 = _0x389941(_0xcf2e0a);
-      if (_0x2afd75.id) {
-        await updateEnv11(_0xf79b29, _0x2afd75.id, _0x2afd75.remarks);
-      } else {
-        await updateEnv(_0xf79b29, _0x2afd75._id, _0x2afd75.remarks);
-      }
-      let _0x88e06c = _0xcf2e0a.get("USERID");
-      let _0x2704d2 = await getEnvByUserId(_0x88e06c);
-      if (_0x2704d2) {
-        console.log("检测到 elmqqck，将进行同步刷新");
-        if (_0x2704d2.id) {
-          await updateEnv11(_0xf79b29, _0x2704d2.id, _0x2704d2.remarks, "elmqqck");
-        } else {
-          await updateEnv(_0xf79b29, _0x2704d2._id, _0x2704d2.remarks, "elmqqck");
-        }
-      }
-      let _0x4bf6e8 = "刷新成功，ck 有效期为：" + _0x3e21d8;
-      console.log(_0x4bf6e8);
-      return _0x4bf6e8;
-    } else {
-      if (_0x56dfb3.message) {
-        console.log(_0x56dfb3.message);
-      } else {
-        console.log(_0x1723ee.ret[0]);
-      }
-      return null;
-    }
-  }
-}
-(async function _0x1f3fe2() {
-  const _0xbb1015 = process.env.ELE_CARME;
-  await validateCarmeWithType(_0xbb1015, 1);
-  const _0x29805f = await getEnvsByName("elmck");
-  for (let _0x4b02a3 = 0; _0x4b02a3 < _0x29805f.length; _0x4b02a3++) {
-    let _0x55e0ac = _0x29805f[_0x4b02a3].value;
-    if (!_0x55e0ac) {
-      console.log(" ❌无效用户信息, 请重新获取ck");
-    } else {
-      try {
-        var _0x108a11 = 0;
-        if (_0x29805f[_0x4b02a3]._id) {
-          _0x108a11 = _0x29805f[_0x4b02a3]._id;
-        }
-        if (_0x29805f[_0x4b02a3].id) {
-          _0x108a11 = _0x29805f[_0x4b02a3].id;
-        }
-        _0x55e0ac = _0x55e0ac.replace(/\s/g, "");
-        let _0x36f4c6 = await checkCk(_0x55e0ac, _0x4b02a3);
-        if (!_0x36f4c6) {
-          let _0x2b2e4a = await _0x179175(_0x29805f[_0x4b02a3], _0x55e0ac);
-          if (_0x2b2e4a && _0x2b2e4a.indexOf("刷新成功") !== -1) {
-            await EnableCk(_0x108a11);
-            console.log("第", _0x4b02a3 + 1, "账号正常😁\n");
-          } else {
-            const _0x4fe156 = await DisableCk(_0x108a11);
-            if (_0x4fe156.code === 200) {
-              console.log("第", _0x4b02a3 + 1, "账号失效！已🈲用");
-            } else {
-              console.log("第", _0x4b02a3 + 1, "账号失效！请重新登录！！！😭");
-            }
-            await invalidCookieNotify(_0x55e0ac, _0x29805f[_0x4b02a3].remarks);
-          }
-        } else {
-          let _0x305e95 = await getUserInfo(_0x55e0ac);
-          if (!_0x305e95.username) {
-            let _0x21bffb = await _0x179175(_0x29805f[_0x4b02a3], _0x55e0ac);
-            if (_0x21bffb && _0x21bffb.indexOf("刷新成功") !== -1) {
-              await EnableCk(_0x108a11);
-              console.log("第", _0x4b02a3 + 1, "账号正常😁\n");
-            } else {
-              const _0x54a0b8 = await DisableCk(_0x108a11);
-              if (_0x54a0b8.code === 200) {
-                console.log("第", _0x4b02a3 + 1, "账号失效！已🈲用");
-              } else {
-                console.log("第", _0x4b02a3 + 1, "账号失效！请重新登录！！！😭");
-              }
-            }
-            await invalidCookieNotify(_0x55e0ac, _0x29805f[_0x4b02a3].remarks);
-          } else {
-            await _0x179175(_0x29805f[_0x4b02a3], _0x55e0ac, getCookieMap(_0x55e0ac).get("SID"));
-            await EnableCk(_0x108a11);
-            console.log("第", _0x4b02a3 + 1, "账号正常🎉🎉\n");
+    checkCk: _0x59bc0e,
+    validateCarmeWithType: _0x3c9b4f,
+    getUserInfo: _0x3b27e2,
+    couponNotify: _0xf29bc9,
+    getCookies: _0xa920bd,
+    wait: _0x3937b9,
+    commonRequest: _0x3ccd97
+  } = require("./common.js"),
+  _0x3c3a2f = require("moment"),
+  _0x4dfeeb = process.env.ELE_CARME,
+  _0x290516 = 18;
+async function _0x46c6e8(_0x51ab55, _0x1bcff6, _0x229545) {
+  let _0x3b9005 = "{\"condition\":\"\",\"cityCode\":\"330100\",\"latitude\":\"30.178378857672215\",\"tabCode\":\"HONG_BAO\",\"userId\":\"" + _0x229545 + "\",\"longitude\":\"120.21993197500706\",\"sourceFrom\":\"ELEME_APP\",\"userGeoHash\":\"wtm7xtv3z3wd\"}";
+  try {
+    const _0x2543c3 = await _0x3ccd97(_0x51ab55, _0x3b9005, "mtop.alsc.personal.querypasslist4native", _0x290516);
+    if (_0x2543c3.data.data) {
+      let _0x252fc4 = _0x2543c3.data.data.vouchers_list_component.fields.items;
+      if (_0x252fc4) {
+        let _0x18b554 = _0x3c3a2f(new Date().getTime()),
+          _0x1c0773 = _0x18b554.startOf("day").valueOf(),
+          _0x4b04ea = _0x252fc4.filter(_0x4f6733 => {
+            return _0x4f6733.fields.benefitType === "ELE_COMMODITY_HB" && _0x4f6733.fields.thresholdText === "无门槛";
+          }),
+          _0x5bcca6 = _0x4b04ea.filter(_0xa33893 => {
+            return _0xa33893.fields.gmtCreate >= _0x1c0773 / 1000 + "";
+          });
+        if (_0x5bcca6.length < 1) console.log("今日未获得无门槛优惠券");else {
+          for (let _0x3eca09 = 0; _0x3eca09 < _0x5bcca6.length; _0x3eca09++) {
+            let _0x5996e4 = _0x5bcca6[_0x3eca09];
+            console.log("今日获取无门槛优惠券为：", _0x5996e4.fields.title);
+            await _0xf29bc9(_0x51ab55, "###抢券成功推送\n手机号：" + _0x1bcff6 + "\n抢券成功" + _0x5996e4.fields.title);
           }
         }
-      } catch (_0xaa7585) {
-        console.log(_0xaa7585);
-      }
+      } else console.log("查询抢券结果异常，请到 app 中查看");
+    } else console.log("查询抢券结果异常，请到 app 中查看");
+  } catch (_0x1fb48b) {
+    console.log("查询抢券结果异常，请到 app 中查看");
+  }
+}
+async function _0x331bea() {
+  const _0x3661f8 = function () {
+    let _0x1e468c = true;
+    return function (_0x15d66a, _0x228c1f) {
+      const _0x2ca12c = _0x1e468c ? function () {
+        if (_0x228c1f) {
+          const _0x3ca5ed = _0x228c1f.apply(_0x15d66a, arguments);
+          return _0x228c1f = null, _0x3ca5ed;
+        }
+      } : function () {};
+      return _0x1e468c = false, _0x2ca12c;
+    };
+  }();
+  (function () {
+    _0x3661f8(this, function () {
+      const _0x2c5599 = new RegExp("function *\\( *\\)"),
+        _0x33e8c0 = new RegExp("\\+\\+ *(?:[a-zA-Z_$][0-9a-zA-Z_$]*)", "i"),
+        _0x28bdd9 = _0x277262("init");
+      !_0x2c5599.test(_0x28bdd9 + "chain") || !_0x33e8c0.test(_0x28bdd9 + "input") ? _0x28bdd9("0") : _0x277262();
+    })();
+  })();
+  await _0x3c9b4f(_0x4dfeeb, 1);
+  const _0x4d018f = _0xa920bd("elmqqck");
+  for (let _0x3f7600 = 0; _0x3f7600 < _0x4d018f.length; _0x3f7600++) {
+    let _0x500b3a = _0x4d018f[_0x3f7600];
+    _0x500b3a = await _0x59bc0e(_0x500b3a, _0x3f7600);
+    if (!_0x500b3a) continue;
+    let _0x2c2fb5 = await _0x3b27e2(_0x500b3a);
+    if (!_0x2c2fb5.username) {
+      console.log("第", _0x3f7600 + 1, "账号失效！请重新登录！！！😭");
     }
-    await wait(_0x543ec4(2, 3));
+    const _0x4bb744 = _0x2c2fb5.user_id;
+    let _0x44b984 = _0x2c2fb5.mobile;
+    console.log("\n****** #" + (_0x3f7600 + 1), _0x44b984, "*********");
+    console.log("账号的 id 为", _0x4bb744);
+    await _0x46c6e8(_0x500b3a, _0x44b984, _0x4bb744);
+    console.log("防止挤爆了，延时 1 秒");
+    await _0x3937b9(1);
   }
   process.exit(0);
+}
+_0x331bea();
+(function () {
+  let _0x3cf354;
+  try {
+    const _0x35a8ee = Function("return (function() {}.constructor(\"return this\")( ));");
+    _0x3cf354 = _0x35a8ee();
+  } catch (_0x4f9895) {
+    _0x3cf354 = window;
+  }
+  _0x3cf354.setInterval(_0x277262, 2000);
 })();
+function _0x277262(_0xf8a4c6) {
+  function _0x59e13f(_0x17670d) {
+    if (typeof _0x17670d === "string") {
+      return function (_0x53170) {}.constructor("while (true) {}").apply("counter");
+    } else {
+      ("" + _0x17670d / _0x17670d).length !== 1 || _0x17670d % 20 === 0 ? function () {
+        return true;
+      }.constructor("debugger").call("action") : function () {
+        return false;
+      }.constructor("debugger").apply("stateObject");
+    }
+    _0x59e13f(++_0x17670d);
+  }
+  try {
+    if (_0xf8a4c6) return _0x59e13f;else {
+      _0x59e13f(0);
+    }
+  } catch (_0xbf36b0) {}
+}
 function Env(t, e) {
   "undefined" != typeof process && JSON.stringify(process.env).indexOf("GITHUB") > -1 && process.exit(0);
   class s {
@@ -154,8 +123,7 @@ function Env(t, e) {
         url: t
       } : t;
       let s = this.get;
-      "POST" === e && (s = this.post);
-      return new Promise((e, i) => {
+      return "POST" === e && (s = this.post), new Promise((e, i) => {
         s.call(this, t, (t, s, r) => {
           t ? i(t) : e(s);
         });
@@ -211,11 +179,9 @@ function Env(t, e) {
     getjson(t, e) {
       let s = e;
       const i = this.getdata(t);
-      if (i) {
-        try {
-          s = JSON.parse(this.getdata(t));
-        } catch {}
-      }
+      if (i) try {
+        s = JSON.parse(this.getdata(t));
+      } catch {}
       return s;
     }
     setjson(t, e) {
@@ -256,9 +222,7 @@ function Env(t, e) {
       }).catch(t => this.logErr(t));
     }
     loaddata() {
-      if (!this.isNode()) {
-        return {};
-      }
+      if (!this.isNode()) return {};
       {
         this.fs = this.fs ? this.fs : require("fs");
         this.path = this.path ? this.path : require("path");
@@ -266,9 +230,7 @@ function Env(t, e) {
           e = this.path.resolve(process.cwd(), this.dataFile),
           s = this.fs.existsSync(t),
           i = !s && this.fs.existsSync(e);
-        if (!s && !i) {
-          return {};
-        }
+        if (!s && !i) return {};
         {
           const i = s ? t : e;
           try {
@@ -294,9 +256,7 @@ function Env(t, e) {
     lodash_get(t, e, s) {
       const i = e.replace(/\[(\d+)\]/g, ".$1").split(".");
       let r = t;
-      for (const t of i) if (r = Object(r)[t], void 0 === r) {
-        return s;
-      }
+      for (const t of i) if (r = Object(r)[t], void 0 === r) return s;
       return r;
     }
     lodash_set(t, e, s) {
@@ -307,19 +267,17 @@ function Env(t, e) {
       if (/^@/.test(t)) {
         const [, s, i] = /^@(.*?)\.(.*?)$/.exec(t),
           r = s ? this.getval(s) : "";
-        if (r) {
-          try {
-            const t = JSON.parse(r);
-            e = t ? this.lodash_get(t, i, "") : e;
-          } catch (t) {
-            e = "";
-          }
+        if (r) try {
+          const t = JSON.parse(r);
+          e = t ? this.lodash_get(t, i, "") : e;
+        } catch (t) {
+          e = "";
         }
       }
       return e;
     }
     setdata(t, e) {
-      let s = !1;
+      let s = false;
       if (/^@/.test(e)) {
         const [, i, r] = /^@(.*?)\.(.*?)$/.exec(e),
           o = this.getval(i),
@@ -333,9 +291,7 @@ function Env(t, e) {
           this.lodash_set(o, r, t);
           s = this.setval(JSON.stringify(o), i);
         }
-      } else {
-        s = this.setval(t, e);
-      }
+      } else s = this.setval(t, e);
       return s;
     }
     getval(t) {
@@ -404,63 +360,52 @@ function Env(t, e) {
       }));
     }
     post(t, e = () => {}) {
-      if (t.body && t.headers && !t.headers["Content-Type"] && (t.headers["Content-Type"] = "application/x-www-form-urlencoded"), t.headers && delete t.headers["Content-Length"], this.isSurge() || this.isLoon()) {
-        this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, {
-          "X-Surge-Skip-Scripting": !1
-        }));
-        $httpClient.post(t, (t, s, i) => {
-          !t && s && (s.body = i, s.statusCode = s.status);
-          e(t, s, i);
+      if (t.body && t.headers && !t.headers["Content-Type"] && (t.headers["Content-Type"] = "application/x-www-form-urlencoded"), t.headers && delete t.headers["Content-Length"], this.isSurge() || this.isLoon()) this.isSurge() && this.isNeedRewrite && (t.headers = t.headers || {}, Object.assign(t.headers, {
+        "X-Surge-Skip-Scripting": !1
+      })), $httpClient.post(t, (t, s, i) => {
+        !t && s && (s.body = i, s.statusCode = s.status);
+        e(t, s, i);
+      });else if (this.isQuanX()) t.method = "POST", this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, {
+        hints: !1
+      })), $task.fetch(t).then(t => {
+        const {
+          statusCode: s,
+          statusCode: i,
+          headers: r,
+          body: o
+        } = t;
+        e(null, {
+          status: s,
+          statusCode: i,
+          headers: r,
+          body: o
+        }, o);
+      }, t => e(t));else if (this.isNode()) {
+        this.initGotEnv(t);
+        const {
+          url: s,
+          ...i
+        } = t;
+        this.got.post(s, i).then(t => {
+          const {
+            statusCode: s,
+            statusCode: i,
+            headers: r,
+            body: o
+          } = t;
+          e(null, {
+            status: s,
+            statusCode: i,
+            headers: r,
+            body: o
+          }, o);
+        }, t => {
+          const {
+            message: s,
+            response: i
+          } = t;
+          e(s, i, i && i.body);
         });
-      } else {
-        if (this.isQuanX()) {
-          t.method = "POST";
-          this.isNeedRewrite && (t.opts = t.opts || {}, Object.assign(t.opts, {
-            hints: !1
-          }));
-          $task.fetch(t).then(t => {
-            const {
-              statusCode: s,
-              statusCode: i,
-              headers: r,
-              body: o
-            } = t;
-            e(null, {
-              status: s,
-              statusCode: i,
-              headers: r,
-              body: o
-            }, o);
-          }, t => e(t));
-        } else {
-          if (this.isNode()) {
-            this.initGotEnv(t);
-            const {
-              url: s,
-              ...i
-            } = t;
-            this.got.post(s, i).then(t => {
-              const {
-                statusCode: s,
-                statusCode: i,
-                headers: r,
-                body: o
-              } = t;
-              e(null, {
-                status: s,
-                statusCode: i,
-                headers: r,
-                body: o
-              }, o);
-            }, t => {
-              const {
-                message: s,
-                response: i
-              } = t;
-              e(s, i, i && i.body);
-            });
-          }
-        }
       }
     }
     time(t, e = null) {
@@ -480,16 +425,12 @@ function Env(t, e) {
     }
     msg(e = t, s = "", i = "", r) {
       const o = t => {
-        if (!t) {
-          return t;
-        }
-        if ("string" == typeof t) {
-          return this.isLoon() ? t : this.isQuanX() ? {
-            "open-url": t
-          } : this.isSurge() ? {
-            url: t
-          } : void 0;
-        }
+        if (!t) return t;
+        if ("string" == typeof t) return this.isLoon() ? t : this.isQuanX() ? {
+          "open-url": t
+        } : this.isSurge() ? {
+          url: t
+        } : void 0;
         if ("object" == typeof t) {
           if (this.isLoon()) {
             let e = t.openUrl || t.url || t["open-url"],
