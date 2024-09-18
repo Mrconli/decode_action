@@ -1,4 +1,4 @@
-#2024-09-18 04:26:38
+#2024-09-18 04:35:29
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
@@ -199,6 +199,7 @@ class qytm():
             print(f"课程获取失败：{response.json().get('message')}")
             return
 
+
     def addviews(self):
         datas = {"id":self.activityid,"user_id":self.userid,"agent_id":self.agent_id,"openid":self.openid}
         encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
@@ -215,6 +216,30 @@ class qytm():
         else:
             print(f"识别视频失败：{response.json().get('data')}")
 
+    def end_video1(self):
+        datas = {"user_id":self.userid,"minutes":0,"begin_time":"","end_time":"","status":1,"activity_id":int(self.activityid)}
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
+        t = int(time.time())
+        result = transform(encrypted_data, t, self.r)
+        url = 'https://005wxapi.hema.ren/apiadmin/log.ActivityUser/activityLog'
+        data = {
+            "param": result,
+            "time": str(t)
+        }
+        response = requests.post(url,headers=self.headers, data=data)
+    
+    def end_video2(self):
+        datas = {"id":int(self.activityid),"user_id":self.userid}
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
+        t = int(time.time())
+        result = transform(encrypted_data, t, self.r)
+        url = 'https://005wxapi.hema.ren/apiadmin/log.ActivityUser/activityActivity'
+        data = {
+            "param": result,
+            "time": str(t)
+        }
+        response = requests.post(url,headers=self.headers, data=data)
+
     def to_answer(self):
         datas = {"activity_id":int(self.activityid),"user_id":self.userid,"question_id":self.question_id,"list_id":self.list_id,"answer":self.answers,"answer_correct":"1,1","correct":self.answers,"num":1}
         encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
@@ -226,60 +251,53 @@ class qytm():
             "time": str(t)
         }
         response = requests.post(url,headers=self.headers, data=data)
+        if "已答题" in response.json().get('data'):
+            print('答题请求成功')
+        else:
+            print(f"答题请求失败：{response.json().get('data')}")
     
-    def addanswer2(self):
-        datas = {"user_id":self.userid,"id":self.activityid}
+    def addanswer(self):
+        datas = {"id":self.userid,"correct":1}
         encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
         t = int(time.time())
         result = transform(encrypted_data, t, self.r)
-        # print(result)
-        url = 'https://005wxapi.hema.ren/apiadmin/log.QuestionUser/activityQuestion'
+        url = 'https://005moneyapi.hema.ren/apiadmin/weixin.Fans/addanswer'
         data = {
             "param": result,
             "time": str(t)
         }
         response = requests.post(url,headers=self.headers, data=data)
-        print(response.json().get('data').get('result'))
-    
-
-    def activityred(self):
-        datas = {"id":self.activityid,"user_id":self.userid}
-        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
-        t = int(time.time())
-        result = transform(encrypted_data, t, self.r)
-        url = 'https://005wxapi.hema.ren/apiadmin/log.RedUser/activityRed'
-        data = {
-            "param": result,
-            "time": str(t)
-        }
-        response = requests.post(url,headers=self.headers, data=data)
+        if "成功" in response.json().get('msg'):
+            print('答题成功')
+        else:
+            print(f"答题失败：{response.json().get('msg')}")
     
     def get_money(self):
         datas = {"activity_id":int(self.activityid),"uid":self.userid,"openid":self.openid}
         encrypted_data = aes_string(datas,'de2l6Whk2jfM69fP','ulgpk8yQwVSD9MwT')
         t = int(time.time())
         result = transform(encrypted_data, t, self.r)
-        print(result)
-        print(t)
         url = 'https://005moneyapi.hema.ren/apiadmin/system.Shop/lingqianpay'
         data = {
             "param": result,
             "time": str(t)
         }
         response = requests.post(url,headers=self.headers2, data=data)
-    
-
+        print(f"领取红包：{response.json().get('data')}")
     
     def main(self):
         self.login()
         self.info()
-        self.activityred()
-        self.addanswer2()
         time.sleep(random.randint(2,5))
-        self.addviews()
-        time.sleep(random.randint(5,10))
+        self.end_video1()
+        self.end_video2()
+        time.sleep(random.randint(10,15))
         self.to_answer()
+        time.sleep(2)
+        self.addanswer()
+        time.sleep(random.randint(10,15))
         self.get_money()
+
 
 if __name__ in "__main__":
     openid = os.getenv('qiangyi_openid')
