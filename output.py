@@ -1,4 +1,4 @@
-#2024-09-16 12:39:19
+#2024-09-18 04:26:38
 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
@@ -7,16 +7,12 @@ import json
 import requests
 import random
 import time
-from datetime import datetime
+import re
+import os
 
-now = datetime.now()
-today = now.strftime('%Y-%m-%d')
-
-def aes_string(data):
+openid1 = '@oEF-A6WGFY0viJuZRtoAAdIOXaVA@oEF-A6ZfMJKqDH36gnIS6jQoB0o8@oEF-A6QXqW7XprWy1YscNZQmXVVc'
+def aes_string(data,key,iv):
     data = json.dumps(data, separators=(',', ':'))
-    # print(data)
-    key = 'xkT31Q0BXvfIWJ05'
-    iv = 'nnLkVLht2DwDpo9c'
     key_bytes = key.encode('utf-8')
     iv_bytes = iv.encode('utf-8')
     key_bytes = key_bytes.ljust(16, b'\0')[:16]
@@ -25,16 +21,14 @@ def aes_string(data):
     padded_data = pad(data_bytes, AES.block_size)
     encrypted_data = cipher.encrypt(padded_data)
     encoded_encrypted_data = base64.b64encode(encrypted_data).decode('utf-8')
-    # print(f'Encrypted data: {encoded_encrypted_data}')
     return encoded_encrypted_data
 
 
 def transform(a, t, r):
     e = len(a)
     i = ""
-    
     for n in range(e):
-        d = (2 * t - 1703132600) % (e + n) % 3
+        d = (2 * t - 1703130605) % (e + n) % 3
         
         char_code = ord(a[n])
         if str(char_code) in r:
@@ -52,28 +46,48 @@ def transform(a, t, r):
     return i
 
 
-
-
-
-class wxtk():
-    def __init__(self,openid,activityid,today) -> None:
+class qytm():
+    def __init__(self,openid,activityid) -> None:
         self.openid = openid
         self.activityid = activityid
-        self.today = today
+        self.headers = {
+            "Host": "005wxapi.hema.ren",
+            "sec-ch-ua": "Not/A)Brand;v=8, Chromium;v=126, Android",
+            "sec-ch-ua-platform": "Android",
+            "sec-ch-ua-mobile": "?1",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; Redmi K30i 5G Build/RKQ1.200826.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/126.0.6478.188 Mobile Safari/537.36 XWEB/1260117 MMWEBSDK/20240501 MMWEBID/5594 MicroMessenger/8.0.50.2701(0x2800325A) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64",
+            "content-type": "application/x-www-form-urlencoded",
+            "accept": "*/*",
+            "origin": "https://xcwx.hema.ren",
+            "x-requested-with": "com.tencent.mm",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://xcwx.hema.ren/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+        }
+        self.headers2 = {
+            "Host": "005moneyapi.hema.ren",
+            "content-length": "88",
+            "sec-ch-ua": "Not/A)Brand;v=8, Chromium;v=126, Android",
+            "sec-ch-ua-platform": "Android",
+            "sec-ch-ua-mobile": "?1",
+            "user-agent": "Mozilla/5.0 (Linux; Android 11; Redmi K30i 5G Build/RKQ1.200826.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/126.0.6478.188 Mobile Safari/537.36 XWEB/1260117 MMWEBSDK/20240501 MMWEBID/5594 MicroMessenger/8.0.50.2701(0x2800325A) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64",
+            "content-type": "application/x-www-form-urlencoded",
+            "accept": "*/*",
+            "origin": "https://xcwx.hema.ren",
+            "x-requested-with": "com.tencent.mm",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://xcwx.hema.ren/",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "priority": "u=1, i"
+        }
         self.r = {
-            "43": "5",
-            "47": "9",
-            "48": "A",
-            "49": "y",
-            "50": "z",
-            "51": "L",
-            "52": "0",
-            "53": "1",
-            "54": "2",
-            "55": "X",
-            "56": "Y",
-            "57": "4",
-            "61": "O",
             "65": "D",
             "66": "n",
             "67": "E",
@@ -83,7 +97,7 @@ class wxtk():
             "71": "H",
             "72": "j",
             "73": "k",
-            "74": "I",
+            "74": "V",
             "75": "6",
             "76": "J",
             "77": "K",
@@ -100,7 +114,7 @@ class wxtk():
             "88": "T",
             "89": "8",
             "90": "U",
-            "97": "V",
+            "97": "I",
             "98": "W",
             "99": "o",
             "100": "/",
@@ -125,166 +139,169 @@ class wxtk():
             "119": "v",
             "120": "w",
             "121": "C",
-            "122": "x"
-        }
-        self.login()
-        self.headers = {
-            "Host": "036j4a9-wxapi.hema.wiki",
-            "Connection": "keep-alive",
-            "sec-ch-ua": "Not/A)Brand;v=8, Chromium;v=126, Android",
-            "content-type": "application/x-www-form-urlencoded",
-            "sec-ch-ua-mobile": "?1",
-            "Authorization": f"Bearer {self.token}",
-            "User-Agent": "Mozilla/5.0 (Linux; Android 11; Redmi K30i 5G Build/RKQ1.200826.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/126.0.6478.188 Mobile Safari/537.36 XWEB/1260117 MMWEBSDK/20240501 MMWEBID/5594 MicroMessenger/8.0.50.2701(0x2800325A) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64",
-            "sec-ch-ua-platform": "Android",
-            "Accept": "*/*",
-            "Origin": "https://036rbt3-wx.hema.wiki",
-            "X-Requested-With": "com.tencent.mm",
-            "Sec-Fetch-Site": "same-site",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Dest": "empty",
-            "Referer": "https://036rbt3-wx.hema.wiki/",
-            "Accept-Encoding": "gzip, deflate, br, zstd",
-            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+            "122": "x",
+            "48": "A",
+            "49": "y",
+            "50": "z",
+            "51": "L",
+            "52": "0",
+            "53": "1",
+            "54": "2",
+            "55": "X",
+            "56": "Y",
+            "57": "4",
+            "43": "5",
+            "47": "9",
+            "61": "O"
         }
 
     def login(self):
         datas = {"openid":self.openid}
-        encrypted_data = aes_string(datas)
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
         t = int(time.time())
         result = transform(encrypted_data, t, self.r)
-        # print(result)
-        headers = {
-            "Host": "036j4a9-wxapi.hema.wiki",
-            "Connection": "keep-alive",
-            "Content-Length": "88",
-            "sec-ch-ua": "Not/A)Brand;v=8, Chromium;v=126, Android",
-            "sec-ch-ua-platform": "Android",
-            "sec-ch-ua-mobile": "?1",
-            "User-Agent": "Mozilla/5.0 (Linux; Android 11; Redmi K30i 5G Build/RKQ1.200826.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/126.0.6478.188 Mobile Safari/537.36 XWEB/1260117 MMWEBSDK/20240501 MMWEBID/5594 MicroMessenger/8.0.50.2701(0x2800325A) WeChat/arm64 Weixin NetType/WIFI Language/zh_CN ABI/arm64",
-            "content-type": "application/x-www-form-urlencoded",
-            "Accept": "*/*",
-            "Origin": "https://036rbt3-wx.hema.wiki",
-            "X-Requested-With": "com.tencent.mm",
-            "Sec-Fetch-Site": "same-site",
-            "Sec-Fetch-Mode": "cors",
-            "Sec-Fetch-Dest": "empty",
-            "Referer": "https://036rbt3-wx.hema.wiki/",
-            "Accept-Encoding": "gzip, deflate, br, zstd",
-            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7"
-        }
-        url = 'https://036j4a9-wxapi.hema.wiki/index/login'
+        url = 'https://005wxapi.hema.ren/apiadmin/weixin.Fans/havefans'
         data = {
             "param": result,
             "time": str(t)
         }
-        response = requests.post(url,headers=headers, data=data)
-        if "成功" in response.json().get('message'):
+        response = requests.post(url,headers=self.headers, data=data)
+        if "成功" in response.json().get('msg'):
             print('登录成功')
-            self.token = response.json().get('data').get('token')
+            self.userid = response.json().get('data').get('id')
+            self.agent_id = response.json().get('data').get('agent_id')
         else:
             print(f"登录失败：{response.json().get('message')}")
-    
+            return
+
     def info(self):
-        datas = {"activity_id":str(self.activityid)}
-        encrypted_data = aes_string(datas)
+        datas = {"id":self.activityid,"user_id":self.userid}
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
         t = int(time.time())
         result = transform(encrypted_data, t, self.r)
-        # print(result)
-        url = 'https://036j4a9-wxapi.hema.wiki/activity/info'
+        url = 'https://005wxapi.hema.ren/apiadmin/activity.Activity/ActivityIntro'
         data = {
             "param": result,
             "time": str(t)
         }
         response = requests.post(url,headers=self.headers, data=data)
-        if "活动信息" in response.json().get('message'):
-            print(response.json())
-            self.title = response.json().get('data').get('title')
-            if "注册视频" in self.title:
-                return False
-            print(f"获取今日任务成功：{self.title}")
-            self.answer_list = {}
-            for questionlist in response.json().get('data').get('questionlist'):
-                self.answer_list[str(questionlist.get('id'))] = questionlist.get('answer')
-            return True
+        if "成功" in response.json().get('msg'):
+            print('课程获取成功')
+            self.question_id = response.json().get('data').get('question_id')
+            list_id = ''
+            answers = ''
+            for questionlists in response.json().get('data').get('questionlist'):
+                list_id += f"{questionlists.get('id')},"
+                answers += f"{questionlists.get('answer')},"
+            self.list_id = list_id.strip(',')
+            self.answers = answers.strip(',')
         else:
-            print(f"任务获取失败：{response.json().get('message')}")
-            return False
+            print(f"课程获取失败：{response.json().get('message')}")
+            return
 
-    def look_video(self):
-        datas = {"activity_id":str(self.activityid),"activity_title":self.title,"activity_begin":f"{self.today} 00:00:00","activity_end":f"{self.today} 23:59:59","category_id":1,"category_name":"本草医话","user_play_second":2898,"activity_total_second":3135,"user_play_ratio":92}
-        encrypted_data = aes_string(datas)
+    def addviews(self):
+        datas = {"id":self.activityid,"user_id":self.userid,"agent_id":self.agent_id,"openid":self.openid}
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
         t = int(time.time())
         result = transform(encrypted_data, t, self.r)
-        # print(result)
-        url = 'https://036j4a9-wxapi.hema.wiki/activity/playProgress'
+        url = 'https://005wxapi.hema.ren/apiadmin/activity.Activity/addviews'
         data = {
             "param": result,
             "time": str(t)
         }
         response = requests.post(url,headers=self.headers, data=data)
-        if "播放进度" in response.json().get('message'):
-            print(f"模拟播放成功")
+        if "成功" in response.json().get('msg'):
+            print('识别视频成功')
         else:
-            print(f"播放失败：{response.json().get('message')}")
+            print(f"识别视频失败：{response.json().get('data')}")
 
-    def end_video(self):
-        datas = {"activity_id":str(self.activityid)}
-        encrypted_data = aes_string(datas)
+    def to_answer(self):
+        datas = {"activity_id":int(self.activityid),"user_id":self.userid,"question_id":self.question_id,"list_id":self.list_id,"answer":self.answers,"answer_correct":"1,1","correct":self.answers,"num":1}
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
         t = int(time.time())
         result = transform(encrypted_data, t, self.r)
-        # print(result)
-        url = 'https://036j4a9-wxapi.hema.wiki/activity/ended'
+        url = 'https://005wxapi.hema.ren/apiadmin/log.QuestionUser/questionLog'
         data = {
             "param": result,
             "time": str(t)
         }
         response = requests.post(url,headers=self.headers, data=data)
-        if "完播日志" in response.json().get('message'):
-            print(f"观看完成")
-        else:
-            print(f"观看失败：{response.json().get('message')}")
     
-    def answer(self):
-        datas = {"activity_id":str(self.activityid),"question_id":self.activityid,"answer_list":self.answer_list}
-        encrypted_data = aes_string(datas)
+    def addanswer2(self):
+        datas = {"user_id":self.userid,"id":self.activityid}
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
         t = int(time.time())
         result = transform(encrypted_data, t, self.r)
         # print(result)
-        url = 'https://036j4a9-wxapi.hema.wiki/activity/answer'
+        url = 'https://005wxapi.hema.ren/apiadmin/log.QuestionUser/activityQuestion'
         data = {
             "param": result,
             "time": str(t)
         }
         response = requests.post(url,headers=self.headers, data=data)
-        if "答题信息" in response.json().get('message'):
-            print(f"完成答题，请注意是否到账")
-        else:
-            print(f"答题失败：{response.json().get('message')}")
+        print(response.json().get('data').get('result'))
+    
 
+    def activityred(self):
+        datas = {"id":self.activityid,"user_id":self.userid}
+        encrypted_data = aes_string(datas,'jNd43S8f5tAli1Rl','nqhFeG5Sn6Purdgd')
+        t = int(time.time())
+        result = transform(encrypted_data, t, self.r)
+        url = 'https://005wxapi.hema.ren/apiadmin/log.RedUser/activityRed'
+        data = {
+            "param": result,
+            "time": str(t)
+        }
+        response = requests.post(url,headers=self.headers, data=data)
+    
+    def get_money(self):
+        datas = {"activity_id":int(self.activityid),"uid":self.userid,"openid":self.openid}
+        encrypted_data = aes_string(datas,'de2l6Whk2jfM69fP','ulgpk8yQwVSD9MwT')
+        t = int(time.time())
+        result = transform(encrypted_data, t, self.r)
+        print(result)
+        print(t)
+        url = 'https://005moneyapi.hema.ren/apiadmin/system.Shop/lingqianpay'
+        data = {
+            "param": result,
+            "time": str(t)
+        }
+        response = requests.post(url,headers=self.headers2, data=data)
+    
+
+    
     def main(self):
-        if self.activityid == 0:
-            print('正在尝试获取今天活动课程')
-            self.activityid = 2
-            while True:
-                if self.info():
-                    break
-                self.activityid += 1
-        else:
-            self.info()
-        self.look_video()
-        time.sleep(random.randint(10,20))
-        self.end_video()
-        time.sleep(2)
-        self.answer()
+        self.login()
+        self.info()
+        self.activityred()
+        self.addanswer2()
+        time.sleep(random.randint(2,5))
+        self.addviews()
+        time.sleep(random.randint(5,10))
+        self.to_answer()
+        self.get_money()
 
 if __name__ in "__main__":
+    openid = os.getenv('qiangyi_openid')
+    if not openid:
+        print('请检查环境变量qiangyi_openid')
+        exit()
+    openid += openid1
+    link = os.getenv('qiangyi_link')
+    if not link:
+        print('请检查环境变量qiangyi_link')
+        exit()
+    content = re.search(r'qrCode=\w+-(\d+)',link)
+    if not content:
+        print('请检查活动链接格式是否完整')
+        exit()
+    activityid = content.group(1)
     openids = openid.split('@')
     print(f'共有{len(openids)}个账号')
     for i,openid in enumerate(openids):
         print(f'----------开始第{i+1}个账号----------')
         try:
-            main = wxtk(openid,activityid,today)
+            main = qytm(openid,activityid)
             main.main()
         except:
             pass
