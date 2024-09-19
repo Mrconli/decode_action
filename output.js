@@ -1,4 +1,4 @@
-//Thu Sep 19 2024 07:55:56 GMT+0000 (Coordinated Universal Time)
+//Thu Sep 19 2024 11:52:01 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
 var _0xod6 = "jsjiami.com.v7";
