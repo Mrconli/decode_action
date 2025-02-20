@@ -1,176 +1,315 @@
-//Wed Feb 19 2025 05:43:39 GMT+0000 (Coordinated Universal Time)
+//Thu Feb 20 2025 10:50:05 GMT+0000 (Coordinated Universal Time)
 //Base:https://github.com/echo094/decode-js
 //Modify:https://github.com/smallfawn/decode_action
-const hqc = process.env.yymhqc;
-let accountId = "";
-const axios = require("axios");
-let taskItemIdArr = [{
-  "676992242694664192": "申贷赢好礼"
-}, {
-  "676992618558840832": "呼唤车友 组队出行"
-}, {
-  "662736940734369792": "暖“新”见面礼"
-}, {
-  "662403544497803264": "购新车意向数"
-}, {
-  "662744551156371456": "二手车购车意向数"
-}, {
-  "662404548685488128": "分享车型周期"
-}, {
-  "662429433629532160": "收藏车型周期"
-}, {
-  "661727887220559872": "签签有礼"
-}, {
-  "662802360732508160": "每日抽奖"
-}, {
-  "671509580525694976": "幸运好礼 一触‘积’发"
-}, {
-  "662819978147287040": "车生活小程序注册"
-}, {
-  "662813735114530816": "车主身份认证"
-}, {
-  "662805299354165248": "逛好物兑换"
-}, {
-  "662805251388100608": "逛违章罚款"
-}, {
-  "662805189626974208": "逛维修保养"
-}, {
-  "662805119309467648": "逛附近加油站"
-}, {
-  "662794321581330432": "逛选二手车"
-}, {
-  "662794237938524160": "逛选新车"
-}, {
-  662794135429734400: "逛汽车回收"
-}, {
-  "662793252641984512": "逛本地车服"
-}];
-function printBanner() {
-  const _0x1a79bd = "\n        ╔══════════════════════════════════════════════╗\n        ║                                              ║\n        ║   ██████  ██████  ███    ███                ║\n        ║   ██   ██ ██   ██ ████  ████                ║\n        ║   ██   ██ ██   ██ ██ ████ ██                ║\n        ║   ██   ██ ██   ██ ██  ██  ██                ║\n        ║   ██████  ██████  ██      ██                ║\n        ║                                              ║\n        ║     好奇车最全任务程序  （所有脚本均免费）     ║\n        ║     Created by 大大鸣 - V1.0.0               ║\n        ║     联系方式: v:xolag29638099                ║\n        ║     代挂q群：1025838653                       ║\n        ╚══════════════════════════════════════════════╝\n        ";
-  console.log(_0x1a79bd);
-}
-!(async () => {
-  printBanner();
-  await main();
-})().catch(_0x138ed2 => {
-  console.log("大大鸣提示保存日志", _0x138ed2);
-});
-async function main() {
-  let _0x7767c2 = hqc.split("#");
-  for (let _0x4bb40d = 0; _0x4bb40d < _0x7767c2.length; _0x4bb40d++) {
-    console.log("大大鸣提示运行第", _0x4bb40d + 1, "个账号");
-    accountId = _0x7767c2[_0x4bb40d];
-    console.log("正常签到");
-    await sign();
-    console.log("每日抽奖，大大鸣祝你好运");
-    await choujiang();
-    console.log("10来个基本任务");
-    await renwu();
-    console.log("查询积分");
-    let _0x53cd3b = await commonGet("/common/accountPointLeft?pointId=620415610219683840");
-    console.log("拥有积分：" + _0x53cd3b.data.result);
-  }
-}
-async function sign() {
-  const _0x3cf917 = "https://channel.cheryfs.cn/archer/activity-api/signinact/signin";
-  const _0x5eed2d = {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF",
-      tenantId: "619669306447261696",
-      activityId: "620810406813786113",
-      accountId: accountId
-    }
-  };
-  try {
-    const _0x5b036d = await axios.get(_0x3cf917, _0x5eed2d);
-    if (_0x5b036d.data.success) {
-      console.log("签到成功");
-      const _0x5aa1de = await axios.get("https://channel.cheryfs.cn/archer/activity-api/signinact/sendRewardResult/" + _0x5b036d.data.result.sendLogId, _0x5eed2d);
-      for (const _0x44edaa of _0x5aa1de.data.result.list) {
-        console.log("获得：" + _0x44edaa.pointAmt + " " + _0x44edaa.winningPrizeName);
-        if (_0x44edaa.winningPrizeName == "签到抽奖") {
-          let _0x33c893 = await signLuckyDrawGet("/luckydraw/luckydrawtimes");
-          for (let _0x479570 = 0; _0x479570 < _0x33c893.data.drawLimitUserLeft; _0x479570++) {
-            let _0x1a0da1 = await signLuckyDrawGet("/luckydraw/luckydraw/8BD41756E6154A38A253B53EAF3F2338");
-            if (_0x1a0da1.data.result) {
-              let _0x2d6ade = await signLuckyDrawGet("/luckydraw/luckydrawResult/8BD41756E6154A38A253B53EAF3F2338");
-              _0x2d6ade.data.result == "true" ? console.log("获得：" + _0x2d6ade.data.awardName) : console.log(_0x2d6ade.data.result);
+const axios = require("axios"),
+  redis = require("redis"),
+  JSONbig = require("json-bigint")({
+    "storeAsString": true
+  });
+module.exports = class Gewechat {
+  constructor(_0x3cc668, _0x572a91, _0x16eed5, _0xa6c9c7 = "redis://localhost:6379", _0x55ec03 = 7200) {
+    const _0x1f7f39 = _0x55ec03 > 0 ? _0x55ec03 : 7200,
+      _0x20d184 = redis.createClient({
+        "url": _0xa6c9c7
+      });
+    _0x20d184.findFirstKeyWithPattern = async _0x1ffb3c => {
+      {
+        let _0x5150a5 = "0";
+        do {
+          {
+            const _0x519c87 = await _0x20d184.scan(_0x5150a5, {
+              "MATCH": _0x1ffb3c,
+              "COUNT": 100
+            });
+            if (_0x519c87.keys.length > 0) return _0x519c87.keys[0];
+            _0x5150a5 = _0x519c87.cursor;
+          }
+        } while (_0x5150a5 > 0);
+        return undefined;
+      }
+    };
+    _0x20d184.on("error", _0x4d6350 => console.error("【Gewechat】【redis】发生错误:", _0x4d6350));
+    _0x20d184.connect();
+    this.redis = _0x20d184;
+    this.expirationSeconds = _0x1f7f39;
+    const _0x4e3c82 = axios.create({
+        "baseURL": _0x3cc668 + "/v2/api",
+        "headers": {
+          "X-GEWE-TOKEN": _0x572a91,
+          "Content-Type": "application/json"
+        },
+        "transformResponse": [_0x3e65e7 => JSONbig.parse(_0x3e65e7)]
+      }),
+      _0x4110ae = (_0x44f46d, _0x3c126a = undefined) => _0x4e3c82.post(_0x44f46d, {
+        ...{
+          "appId": _0x16eed5
+        },
+        ..._0x3c126a
+      }).then(_0x8c5dc2 => console.log("【Gewechat】【" + _0x44f46d + "】", JSON.stringify(_0x3c126a), "==>", JSON.stringify(_0x8c5dc2?.["data"])) || _0x8c5dc2?.["data"]).catch(({
+        message: _0x2d3927,
+        name: _0x1fd7a8,
+        code: _0x3b15b8,
+        config: _0x1d6801,
+        request: _0x19a141
+      }) => console.error("【Gewechat】【" + _0x44f46d + "】", _0x1fd7a8, _0x3b15b8, _0x2d3927) || {});
+    this.downloadImage = (_0x273507, _0x4538b5 = 2) => _0x4110ae("/message/downloadImage", {
+      "xml": _0x273507,
+      "type": _0x4538b5
+    });
+    this.messageModule = class _0x5a7af9 {
+      constructor(_0x4a00b3 = "", _0x2b72ee = undefined) {
+        {
+          this.toWxid = _0x4a00b3;
+          this.callBack = _0x2b72ee ? _0x2b72ee : () => {};
+          const _0x27da03 = (_0x480b38, _0x2a0ec6, _0xb3b4e8 = " ") => _0x4e3c82.post(_0x480b38, {
+            ...{
+              "appId": _0x16eed5,
+              "toWxid": _0x4a00b3
+            },
+            ..._0x2a0ec6
+          }, {
+            "timeout": 2800
+          }).then(_0x23c636 => {
+            {
+              if (!_0x480b38.endsWith("revokeMsg")) {
+                const {
+                  createTime = 0,
+                  msgId = 0,
+                  newMsgId = 0,
+                  type = 0
+                } = _0x23c636.data.data;
+                _0x20d184.setEx("gw:history:" + _0x16eed5 + "_" + msgId + "_" + newMsgId + "_" + createTime + "_" + type, _0x1f7f39, _0xb3b4e8);
+                this.callBack(msgId, newMsgId, createTime, type);
+              }
+              console.log("【Gewechat】【" + _0x480b38 + "】", JSON.stringify(_0x2a0ec6), "==>", JSON.stringify(_0x23c636?.["data"]));
+              return _0x23c636?.["data"];
             }
+          }).catch(({
+            message: _0x18f7b4,
+            name: _0x5b8897,
+            code: _0xb922c,
+            config: _0x5ade09,
+            request: _0x3c3807
+          }) => console.error("【Gewechat】【" + _0x480b38 + "】", _0x5b8897, _0xb922c, _0x18f7b4) || {});
+          this.postText = (_0x3ae063, _0x2dbfb3 = null) => _0x27da03("/message/postText", {
+            "content": _0x3ae063,
+            "ats": _0x2dbfb3
+          }, _0x3ae063);
+          this.postFile = (_0x248be7, _0x688c92) => _0x27da03("/message/postFile", {
+            "fileUrl": _0x248be7,
+            "fileName": _0x688c92
+          }, "[文件]");
+          this.postImage = _0x4176f3 => _0x27da03("/message/postImage", {
+            "imgUrl": _0x4176f3
+          }, "[图片]");
+          this.postVoice = (_0x4ebc3a, _0x550bdb) => _0x27da03("/message/postVoice", {
+            "voiceUrl": _0x4ebc3a,
+            "voiceDuration": _0x550bdb
+          }, "[语音]");
+          this.postVideo = (_0x26122d, _0x41078c, _0x2ea71b) => _0x27da03("/message/postVideo", {
+            "videoUrl": _0x26122d,
+            "thumbUrl": _0x41078c,
+            "videoDuration": _0x2ea71b
+          }, "[视频]");
+          this.postLink = (_0x5dee48, _0x4cbe3c, _0x24667a, _0x2fbebb) => _0x27da03("/message/postLink", {
+            "title": _0x5dee48,
+            "desc": _0x4cbe3c,
+            "linkUrl": _0x24667a,
+            "thumbUrl": _0x2fbebb
+          }, "[链接]");
+          this.postNameCard = (_0x39002a, _0x5af47b) => _0x27da03("/message/postNameCard", {
+            "nickName": _0x39002a,
+            "nameCardWxid": _0x5af47b
+          }, "[名片]");
+          this.postEmoji = (_0x47aa57, _0x26e88a) => _0x27da03("/message/postEmoji", {
+            "emojiMd5": _0x47aa57,
+            "emojiSize": _0x26e88a
+          }, "[动画表情]");
+          this.postAppMsg = _0x3f1944 => _0x27da03("/message/postAppMsg", {
+            "appmsg": _0x3f1944
+          }, _0x3f1944);
+          this.postMiniApp = (_0x5c07b0, _0xd6a2e3, _0x48ac67, _0x5e7489, _0x5627c4, _0x430e89) => _0x27da03("/message/postMiniApp", {
+            "miniAppId": _0x5c07b0,
+            "displayName": _0xd6a2e3,
+            "pagePath": _0x48ac67,
+            "coverImgUrl": _0x5e7489,
+            "title": _0x5627c4,
+            "userName": _0x430e89
+          }, "[小程序]");
+          this.forwardFile = _0x479e6d => _0x27da03("/message/forwardFile", {
+            "xml": _0x479e6d
+          }, "[文件]");
+          this.forwardImage = _0xcdfd63 => _0x27da03("/message/forwardImage", {
+            "xml": _0xcdfd63
+          }, "[图片]");
+          this.forwardVideo = _0x2b7a2b => _0x27da03("/message/forwardVideo", {
+            "xml": _0x2b7a2b
+          }, "[视频]");
+          this.forwardUrl = _0x44c041 => _0x27da03("/message/forwardUrl", {
+            "xml": _0x44c041
+          }, "[链接]");
+          this.forwardMiniApp = (_0x5d29cb, _0x3e6e39) => _0x27da03("/message/forwardMiniApp", {
+            "xml": _0x5d29cb,
+            "coverImgUrl": _0x3e6e39
+          }, "[小程序]");
+          this.revokeMsg = (_0x546d14, _0x508e94, _0x38dd1c) => _0x27da03("/message/revokeMsg", {
+            "msgId": _0x546d14,
+            "newMsgId": _0x508e94,
+            "createTime": _0x38dd1c
+          });
+        }
+      }
+    };
+    this.contactsModule = class _0x4e4f85 {
+      static ["fetchContactsList"] = async (_0x52e441 = false) => _0x2609d7("gw:fetchContactsList:" + contactsInfo, _0x52e441, () => _0x4110ae("/contacts/fetchContactsList"));
+      static ["fetchContactsListCache"] = () => _0x4110ae("/contacts/fetchContactsListCache");
+      static ["search"] = async (_0x2579c5, _0x5647af = false) => _0x2609d7("gw:search:" + _0x2579c5, _0x5647af, () => _0x4110ae("/contacts/search", {
+        "contactsInfo": _0x2579c5
+      }));
+      static ["addContacts"] = (_0x1cace1, _0x137c50, _0x1e5a96, _0x593a34, _0x544cae) => _0x4110ae("/contacts/addContacts", {
+        "scene": _0x1cace1,
+        "option": _0x137c50,
+        "v3": _0x1e5a96,
+        "v4": _0x593a34,
+        "content": _0x544cae
+      });
+      static ["deleteFriend"] = _0x81c302 => _0x4110ae("/contacts/deleteFriend", {
+        "wxid": _0x81c302
+      });
+      static ["uploadPhoneAddressList"] = (_0x2abdd7, _0x141fc1) => _0x4110ae("/contacts/uploadPhoneAddressList", {
+        "phones": _0x2abdd7,
+        "opType": _0x141fc1
+      });
+      static ["getBriefInfo"] = async (_0x45634a, _0x54ab33 = false) => _0x2609d7("gw:getBriefInfo:" + _0x45634a.sort().join(","), _0x54ab33, () => _0x4110ae("/contacts/getBriefInfo", {
+        "wxids": _0x45634a
+      }));
+      static ["getDetailInfo"] = async (_0x44d361, _0x11decb = false) => _0x2609d7("gw:getDetailInfo:" + _0x44d361.sort().join(","), _0x11decb, () => _0x4110ae("/contacts/getDetailInfo", {
+        "wxids": _0x44d361
+      }));
+      static ["setFriendPermissions"] = (_0x556e88, _0x6f5f4a) => _0x4110ae("/contacts/setFriendPermissions", {
+        "wxid": _0x556e88,
+        "onlyChat": _0x6f5f4a
+      });
+      static ["setFriendRemark"] = (_0xb58988, _0x534d94) => _0x4110ae("/contacts/setFriendRemark", {
+        "wxid": _0xb58988,
+        "remark": _0x534d94
+      });
+      static ["getPhoneAddressList"] = async (_0x37ad66, _0x12ac3 = false) => _0x2609d7("gw:getPhoneAddressList:" + _0x37ad66.sort().join(","), _0x12ac3, () => _0x4110ae("/contacts/getPhoneAddressList", {
+        "phones": _0x37ad66
+      }));
+    };
+    this.groupModule = class _0x159908 {
+      static ["createChatroom"] = _0x211a3f => _0x4110ae("/group/createChatroom", {
+        "wxids": _0x211a3f
+      });
+      static ["agreeJoinRoom"] = _0x4556e0 => _0x4110ae("/group/agreeJoinRoom", {
+        "url": _0x4556e0
+      });
+      static ["joinRoomUsingQRCode"] = _0x2fa8f9 => _0x4110ae("/group/joinRoomUsingQRCode", {
+        "qrUrl": _0x2fa8f9
+      });
+      constructor(_0x51e78e) {
+        this.modifyChatroomName = _0x3ed087 => _0x4110ae("/group/modifyChatroomName", {
+          "chatroomName": _0x3ed087,
+          "chatroomId": _0x51e78e
+        });
+        this.modifyChatroomRemark = _0x4bd3de => _0x4110ae("/group/modifyChatroomRemark", {
+          "chatroomRemark": _0x4bd3de,
+          "chatroomId": _0x51e78e
+        });
+        this.modifyChatroomNickNameForSelf = _0x5df86a => _0x4110ae("/group/modifyChatroomNickNameForSelf", {
+          "nickName": _0x5df86a,
+          "chatroomId": _0x51e78e
+        });
+        this.inviteMember = (_0x46a916, _0x3eb3a1) => _0x4110ae("/group/inviteMember", {
+          "wxids": _0x46a916,
+          "chatroomId": _0x51e78e,
+          "reason": _0x3eb3a1
+        });
+        this.removeMember = _0x2a17f0 => _0x4110ae("/group/removeMember", {
+          "wxids": _0x2a17f0,
+          "chatroomId": _0x51e78e
+        });
+        this.quitChatroom = () => _0x4110ae("/group/quitChatroom", {
+          "chatroomId": _0x51e78e
+        });
+        this.disbandChatroom = () => _0x4110ae("/group/disbandChatroom", {
+          "chatroomId": _0x51e78e
+        });
+        this.getChatroomInfo = async (_0x2716cf = false) => _0x2609d7("gw:getChatroomInfo:" + _0x51e78e, _0x2716cf, () => _0x4110ae("/group/getChatroomInfo", {
+          "chatroomId": _0x51e78e
+        }));
+        this.getChatroomMemberList = async (_0x516776 = false) => _0x2609d7("gw:getChatroomMemberList:" + _0x51e78e, _0x516776, () => _0x4110ae("/group/getChatroomMemberList", {
+          "chatroomId": _0x51e78e
+        }));
+        this.getChatroomMemberDetail = async (_0x4a4bb7, _0x32f0b7 = false) => _0x2609d7("gw:getChatroomMemberDetail:" + _0x51e78e + ":" + _0x4a4bb7.sort().join(","), _0x32f0b7, () => _0x4110ae("/group/getChatroomMemberDetail", {
+          "chatroomId": _0x51e78e,
+          "memberWxids": _0x4a4bb7
+        }));
+        this.getChatroomAnnouncement = async (_0x58feb3 = false) => _0x2609d7("gw:getChatroomAnnouncement:" + _0x51e78e, _0x58feb3, () => _0x4110ae("/group/getChatroomAnnouncement", {
+          "chatroomId": _0x51e78e
+        }));
+        this.setChatroomAnnouncement = _0x6f3e4d => _0x4110ae("/group/setChatroomAnnouncement", {
+          "chatroomId": _0x51e78e,
+          "content": _0x6f3e4d
+        });
+        this.addGroupMemberAsFriend = (_0x53789a, _0x13a866) => _0x4110ae("/group/addGroupMemberAsFriend", {
+          "chatroomId": _0x51e78e,
+          "memberWxid": _0x53789a,
+          "content": _0x13a866
+        });
+        this.getChatroomQrCode = async (_0x20d14e = false) => _0x2609d7("gw:getChatroomQrCode:" + _0x51e78e, _0x20d14e, () => _0x4110ae("/group/getChatroomQrCode", {
+          "chatroomId": _0x51e78e
+        }));
+        this.saveContractList = _0x4488c9 => _0x4110ae("/group/saveContractList", {
+          "chatroomId": _0x51e78e,
+          "operType": _0x4488c9
+        });
+        this.adminOperate = (_0x29a9e2, _0x4a00f) => _0x4110ae("/group/adminOperate", {
+          "chatroomId": _0x51e78e,
+          "operType": _0x29a9e2,
+          "wxids": _0x4a00f
+        });
+        this.pinChat = _0x402d6e => _0x4110ae("/group/pinChat", {
+          "chatroomId": _0x51e78e,
+          "top": _0x402d6e
+        });
+        this.setMsgSilence = _0x50fb53 => _0x4110ae("/group/setMsgSilence", {
+          "chatroomId": _0x51e78e,
+          "silence": _0x50fb53
+        });
+        this.roomAccessApplyCheckApprove = (_0x3d1eac, _0x1fa65f) => _0x4110ae("/group/roomAccessApplyCheckApprove", {
+          "chatroomId": _0x51e78e,
+          "newMsgId": _0x3d1eac,
+          "msgContent": _0x1fa65f
+        });
+      }
+    };
+    const _0x2609d7 = async (_0x4845e5, _0x3950f3, _0x56c411) => {
+      {
+        if (!_0x3950f3) try {
+          {
+            const _0x5d5495 = await _0x20d184.get(_0x4845e5);
+            if (_0x5d5495) return console.log("【Gewechat】【redis】从缓存获取数据：" + _0x4845e5), JSON.parse(_0x5d5495);
+          }
+        } catch (_0x561088) {
+          console.error("【Gewechat】【redis】获取缓存失败:", _0x561088);
+        }
+        try {
+          {
+            const _0x30de61 = await _0x56c411();
+            await _0x20d184.setEx(_0x4845e5, _0x1f7f39, JSON.stringify(_0x30de61));
+            console.log("【Gewechat】【redis】缓存已更新：" + _0x4845e5);
+            return _0x30de61;
+          }
+        } catch (_0xcd742a) {
+          {
+            console.error("【Gewechat】【redis】获取数据失败:", _0xcd742a);
+            throw _0xcd742a;
           }
         }
       }
-    }
-  } catch (_0x24a237) {
-    console.log("签到报错", _0x24a237);
+    };
+    return this;
   }
-}
-async function signLuckyDrawGet(_0x58b575) {
-  const _0x4f6149 = "https://channel.cheryfs.cn/archer/activity-api" + _0x58b575;
-  const _0x45fe90 = {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF",
-      tenantId: "619669306447261696",
-      activityId: "772254567680942081",
-      accountId: accountId
-    }
-  };
-  try {
-    const _0x23007f = await axios.get(_0x4f6149, _0x45fe90);
-    return _0x23007f;
-  } catch (_0xbefb79) {
-    console.log(_0xbefb79);
-  }
-}
-async function luckyDrawGet(_0x3ec684) {
-  const _0x49813e = "https://channel.cheryfs.cn/archer/activity-api" + _0x3ec684;
-  const _0x3ed018 = {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF",
-      tenantId: "619669306447261696",
-      activityId: "620821692188483585",
-      accountId: accountId
-    }
-  };
-  try {
-    const _0x71dd5b = await axios.get(_0x49813e, _0x3ed018);
-    return _0x71dd5b;
-  } catch (_0x4d6fc3) {
-    console.log(_0x4d6fc3);
-  }
-}
-async function choujiang() {
-  let _0x140ea2 = await luckyDrawGet("/luckydraw/luckydraw/27AA8429B12847B2AAE25FF2A0620284");
-  if (_0x140ea2.data.success) {
-    if (_0x140ea2.data.result) {
-      let _0x5de06a = await luckyDrawGet("/luckydraw/luckydrawResult/27AA8429B12847B2AAE25FF2A0620284");
-      _0x5de06a.data.result == "true" ? console.log("获得：" + _0x5de06a.data.awardName) : console.log(_0x5de06a.data.result);
-    }
-  } else {
-    console.log("7点-23点才能抽奖,应该是18点的兑换吧。还没试");
-  }
-}
-async function renwu() {
-  for (const _0x4db207 of taskItemIdArr) {
-    let _0x1ac9b7 = Object.keys(_0x4db207)[0];
-    let _0x57ef1a = await commonGet("/task/taskItemAchieveDetail?taskItemId=" + _0x1ac9b7);
-    console.log("任务：" + _0x57ef1a.data.result.taskDesc);
-    if (_0x57ef1a.data.result.finished) {
-      console.log("大大鸣提示任务已完成");
-    } else {
-      let _0x3cf212 = await commonGet("/taskItem/achieve?taskItemId=" + _0x1ac9b7);
-      console.log(_0x3cf212.data.message);
-    }
-  }
-}
-async function commonGet(_0x182a80) {
-  const _0x40f6f0 = "https://channel.cheryfs.cn/archer/activity-api" + _0x182a80;
-  const _0x5774ac = {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36 MicroMessenger/7.0.20.1781(0x6700143B) NetType/WIFI MiniProgramEnv/Windows WindowsWechat/WMPF",
-      tenantId: "619669306447261696",
-      activityId: "661720946758930433",
-      accountId: accountId
-    }
-  };
-  return await axios.get(_0x40f6f0, _0x5774ac);
-}
+};
